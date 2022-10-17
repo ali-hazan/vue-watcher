@@ -1,4 +1,6 @@
 # watcher
+ In this project i'm demonstrating the use of watcher or watch property in vuejs
+ for more please visit my blog
 
 ## Project setup
 ```
