@@ -1,131 +1,104 @@
 <template>
   <div style="text-align: center">
-    <h1>Convert Dollar to GCC Correspondant</h1>
-    <input
-      type="number"
-      v-model="inDollar"
-      placeholder="Enter amount in Dollar"
-    />
-    <div class="container">
-      <div
-        class="gcc-curreny-card"
-        v-for="symbol in gccSymbols"
-        :key="symbol.label"
-      >
-        {{ symbol.country }}
-        <div class="currency-value">
-          {{ gccCurrencyValue[symbol.label] + " " + symbol.label }}
-        </div>
-      </div>
+    <h1>My Ledger</h1>
+    <div class="mb-4">
+      <input
+        type="number"
+        v-model="amountPaid"
+        placeholder="Enter amount in Dollar"
+      />
     </div>
+    <div class="mb-4">
+      <select v-model="selectedCategory">
+        <option
+          v-for="option in ledgerOptions"
+          :key="option.value"
+          :value="option.value"
+        >
+          {{ option.label }}
+        </option>
+      </select>
+    </div>
+    <div class="mb-4">Balance : {{ balance }}</div>
+
+    <button @click="amountPaidSubmit">Amount Paid</button>
   </div>
 </template>
 
 <script>
-//Curreny rate
-
-let customHeaders = new Headers();
-customHeaders.append("apikey", "G1hLzz5zBX5JWYotF52BmJ0aLjviF38e");
-
-const requestOptions = {
-  method: "GET",
-  redirect: "follow",
-  headers: customHeaders,
-};
-
 export default {
   name: "App",
   data() {
     return {
-      inDollar: 0,
-      dollarSymbols: {
-        country: "United States Dollar",
-        label: "USD",
-      },
-      gccCurrencyValue: {
-        AED: 0,
-        BHD: 0,
-        KWD: 0,
-        OMR: 0,
-        QAR: 0,
-        SAR: 0,
-      },
-      gccSymbols: [
+      balance: 0,
+      allPaid: 0,
+      amountPaid: 0,
+      selectedCategory: "tuition",
+      ledgerOptions: [
         {
-          country: "United Arab Emirates Dirham",
-          label: "AED",
+          label: "Tuition",
+          value: "tuition",
         },
         {
-          country: "Bahraini Dinar",
-          label: "BHD",
+          label: "Electricity",
+          value: "electricity",
         },
         {
-          country: "Kuwaiti Dinar",
-          label: "KWD",
-        },
-        {
-          country: "Omani Rial",
-          label: "OMR",
-        },
-        {
-          country: "Qatari Rial",
-          label: "QAR",
-        },
-        {
-          country: "Saudi Riyal",
-          label: "SAR",
+          label: "Rent",
+          value: "rent",
         },
       ],
+
+      ledgerBook: {
+        tuition: {
+          totalDue: 3000,
+          paid: [],
+        },
+        electricity: {
+          totalDue: 5000,
+          paid: [],
+        },
+        rent: {
+          totalDue: 8000,
+          paid: [1000,],
+        },
+      },
     };
   },
+  mounted() {
+    // this.calculateBalance();
+  },
   watch: {
-    inDollar(val) {
-      this.loadCurrencyValue(val);
+    ledgerBook: {
+      handler() {
+        this.calculateBalance();
+      },
+      deep: true,
+      immediate:true,
     },
   },
   methods: {
-    loadCurrencyValue(amount) {
-      if (amount > 0) {
-        this.gccSymbols.forEach((item) => {
-          fetch(
-            `https://api.apilayer.com/exchangerates_data/convert?to=${item.label}&from=USD&amount=${amount}`,
-            requestOptions
-          )
-            .then((response) => response.json())
-
-            .then((data) => {
-              this.gccCurrencyValue[item.label] = data.result;
-              console.log(data);
-            })
-            .catch((error) => console.error("error", error));
+    amountPaidSubmit() {
+      this.ledgerBook[this.selectedCategory].paid.push(this.amountPaid);
+    },
+    calculateBalance() {
+      for (const property in this.ledgerBook) {
+        this.ledgerBook[property].paid.forEach((item) => {
+          this.allPaid += item;
         });
       }
+      const totalDue =
+        this.ledgerBook.tuition.totalDue +
+        this.ledgerBook.electricity.totalDue +
+        this.ledgerBook.rent.totalDue;
+      this.balance = totalDue - this.allPaid;
     },
   },
 };
 </script>
 
 <style>
-.gcc-curreny-card {
-  background-color: #fafafa;
-  width: 180px;
-  height: 84px;
-  font-family: monospace;
-  margin: 8px;
-  padding: 12px;
-  border-radius: 8px;
-  box-shadow: 0px 0px 5px 0px rgb(174 174 174 / 47%);
-  -webkit-box-shadow: 0px 0px 5px 0px rgb(174 174 174 / 47%);
-  -moz-box-shadow: 0px 0px 5px 0px rgb(174 174 174 / 47%);
-}
-.container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-top: 18px;
-}
-.currency-value {
-  font-size: 18px;
-  margin-top: 12px;
+.mb-4 {
+  margin-bottom: 12px;
 }
 </style>
