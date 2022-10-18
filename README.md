@@ -4,6 +4,10 @@
  
  https://medium.com/vuejs-school/watch-property-in-vuejs-how-can-i-apply-3f38c5106ffe
 
+
+
+![alt text](https://miro.medium.com/max/982/1*EoLfxxN7AJXkN_2at-oa5Q.png)
+
 ## Project setup
 ```
 yarn install
